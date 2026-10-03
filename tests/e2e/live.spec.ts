@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { randomUUID } from "node:crypto";
+import { createServer } from "node:http";
+import { once } from "node:events";
 
 test("Neon: authenticated call payload persists once, appears in dashboard, and updates", async ({
   page,
@@ -12,7 +14,7 @@ test("Neon: authenticated call payload persists once, appears in dashboard, and 
   const key = `e2e-${randomUUID()}`;
   const payload = {
     category: "METER",
-    description: "FICTIONAL VERIFICATION — Meter stopped accepting tokens",
+    description: `FICTIONAL VERIFICATION — Meter stopped accepting tokens (${randomUUID()})`,
     location: "Yaba, Lagos (test)",
     meterNumber: "DEMO-45001234",
     source: "DEMO",
@@ -21,17 +23,60 @@ test("Neon: authenticated call payload persists once, appears in dashboard, and 
     Authorization: "Bearer e2e-only-tool-secret-not-for-deployment",
     "Idempotency-Key": key,
   };
-  const responses = await Promise.all(
-    Array.from({ length: 8 }, () =>
-      request.post("/api/complaints", { headers, data: payload }),
-    ),
-  );
-  expect(responses.filter((r) => r.status() === 201)).toHaveLength(1);
-  expect(responses.filter((r) => r.status() === 200)).toHaveLength(7);
-  const bodies = await Promise.all(responses.map((r) => r.json()));
-  const tickets = new Set(bodies.map((body) => body.complaint.ticketId));
-  expect(tickets.size).toBe(1);
-  const ticket = bodies[0].complaint.ticketId as string;
+  let persistedTicketId: string | undefined;
+  // Forward the first request to LightLine, then drop its successful response
+  // before the caller receives it to model a real lost-response retry.
+  const lostResponseProxy = createServer((incoming, outgoing) => {
+    void (async () => {
+      const chunks: Buffer[] = [];
+      for await (const chunk of incoming) chunks.push(Buffer.from(chunk));
+      const upstream = await fetch("http://localhost:3100/api/complaints", {
+        method: "POST",
+        headers: {
+          Authorization: headers.Authorization,
+          "Content-Type": "application/json",
+          "Idempotency-Key": headers["Idempotency-Key"],
+        },
+        body: Buffer.concat(chunks),
+      });
+      const upstreamBody = await upstream.json();
+      if (upstream.status !== 201 || !upstreamBody.complaint?.ticketId)
+        throw new Error("The forwarded test request did not persist a ticket.");
+      persistedTicketId = upstreamBody.complaint.ticketId;
+      outgoing.destroy();
+    })().catch(() => outgoing.destroy());
+  });
+  lostResponseProxy.listen(0, "127.0.0.1");
+  await once(lostResponseProxy, "listening");
+  const proxyAddress = lostResponseProxy.address();
+  if (!proxyAddress || typeof proxyAddress === "string")
+    throw new Error("Lost-response proxy did not bind to a TCP port.");
+  try {
+    await expect(
+      fetch(`http://127.0.0.1:${proxyAddress.port}/api/complaints`, {
+        method: "POST",
+        headers: {
+          Authorization: headers.Authorization,
+          "Content-Type": "application/json",
+          "Idempotency-Key": headers["Idempotency-Key"],
+        },
+        body: JSON.stringify(payload),
+      }),
+    ).rejects.toThrow();
+  } finally {
+    await new Promise<void>((resolve, reject) =>
+      lostResponseProxy.close((error) => (error ? reject(error) : resolve())),
+    );
+  }
+  const replay = await request.post("/api/complaints", {
+    headers,
+    data: payload,
+  });
+  expect(replay.status()).toBe(200);
+  const replayed = await replay.json();
+  expect(replayed.replayed).toBe(true);
+  expect(replayed.complaint.ticketId).toBe(persistedTicketId);
+  const ticket = replayed.complaint.ticketId as string;
   expect(ticket).toMatch(/^LL-\d{4,}$/);
   expect(
     (

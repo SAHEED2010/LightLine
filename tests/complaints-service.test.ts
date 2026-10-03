@@ -62,9 +62,10 @@ beforeEach(async () => {
 });
 
 describe("complaint persistence with PostgreSQL", () => {
-  it("inserts a persisted ticket and replays the same payload", async () => {
+  it("replays after a lost response but allows a later identical complaint", async () => {
     const first = await createComplaint(input(), "voice-call-0001");
     const replay = await createComplaint(input(), "voice-call-0001");
+    const later = await createComplaint(input(), "voice-call-0009");
     expect(first.replayed).toBe(false);
     expect(first.complaint).toMatchObject({
       ticketId: "LL-0001",
@@ -75,9 +76,11 @@ describe("complaint persistence with PostgreSQL", () => {
     expect(first.complaint.id).toMatch(/^[0-9a-f-]{36}$/i);
     expect(first.complaint.createdAt).toMatch(/^\d{4}-\d\d-\d\dT/);
     expect(replay).toEqual({ ...first, replayed: true });
+    expect(later.replayed).toBe(false);
+    expect(later.complaint.ticketId).not.toBe(first.complaint.ticketId);
     expect(
       (await listComplaints({ page: 1, pageSize: 25 })).pagination.total,
-    ).toBe(1);
+    ).toBe(2);
   });
 
   it("persists blank optional tool fields as null and replays an omitted-field payload", async () => {
