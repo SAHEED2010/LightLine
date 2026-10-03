@@ -80,6 +80,29 @@ describe("complaint persistence with PostgreSQL", () => {
     ).toBe(1);
   });
 
+  it("persists blank optional tool fields as null and replays an omitted-field payload", async () => {
+    const first = await createComplaint(
+      input({
+        callerPhone: " ",
+        customerAccount: "",
+        meterNumber: "  \t ",
+        providerCallId: " ",
+      }),
+      "bimpe-call-0008",
+    );
+    expect(first.complaint).toMatchObject({
+      callerPhone: null,
+      customerAccount: null,
+      meterNumber: null,
+      providerCallId: null,
+    });
+    const replay = await createComplaint(input(), "bimpe-call-0008");
+    expect(replay).toEqual({ ...first, replayed: true });
+    expect(
+      (await getComplaint(first.complaint.ticketId))?.meterNumber,
+    ).toBeNull();
+  });
+
   it("rejects idempotency-key reuse with changed data", async () => {
     await createComplaint(input(), "voice-call-0002");
     await expect(

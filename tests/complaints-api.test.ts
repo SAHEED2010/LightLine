@@ -89,6 +89,39 @@ describe("complaint API handlers", () => {
     expect(mocks.createComplaint.mock.calls[0]?.[1]).toBe("call-test-1");
   });
 
+  it("normalizes blank optional tool arguments before complaint creation", async () => {
+    mocks.createComplaint.mockResolvedValue({
+      complaint: { ticketId: "LL-0003", status: "OPEN" },
+      replayed: false,
+    });
+    const response = await POST(
+      new Request("http://local/api/complaints", {
+        method: "POST",
+        headers: {
+          "Idempotency-Key": "bimpe-call-0003",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...payload,
+          meterNumber: " ",
+          customerAccount: "",
+          callerPhone: "\t",
+          providerCallId: "  ",
+        }),
+      }),
+    );
+    expect(response.status).toBe(201);
+    expect(mocks.createComplaint).toHaveBeenCalledWith(
+      expect.objectContaining({
+        meterNumber: undefined,
+        customerAccount: undefined,
+        callerPhone: undefined,
+        providerCallId: undefined,
+      }),
+      "bimpe-call-0003",
+    );
+  });
+
   it("returns 201 for a newly persisted ticket and never reports success on persistence failure", async () => {
     mocks.createComplaint.mockResolvedValueOnce({
       complaint: { ticketId: "LL-0002", status: "OPEN" },

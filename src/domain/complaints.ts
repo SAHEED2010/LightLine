@@ -19,15 +19,21 @@ export const complaintPriorities = ["NORMAL", "HIGH", "LOW"] as const;
 export const complaintSources = ["VOICE", "OPERATOR", "DEMO"] as const;
 
 const boundedText = (max: number) => z.string().trim().min(1).max(max);
+const optionalBoundedText = (max: number) =>
+  z.preprocess(
+    (value) =>
+      typeof value === "string" && value.trim() === "" ? undefined : value,
+    boundedText(max).optional(),
+  );
 export const createComplaintSchema = z
   .object({
     category: z.enum(complaintCategories),
     description: boundedText(4000),
     location: boundedText(500),
-    callerPhone: boundedText(32).optional(),
-    customerAccount: boundedText(100).optional(),
-    meterNumber: boundedText(100).optional(),
-    providerCallId: boundedText(200).optional(),
+    callerPhone: optionalBoundedText(32),
+    customerAccount: optionalBoundedText(100),
+    meterNumber: optionalBoundedText(100),
+    providerCallId: optionalBoundedText(200),
     source: z.enum(complaintSources).default("VOICE"),
     priority: z.enum(complaintPriorities).default("NORMAL"),
   })

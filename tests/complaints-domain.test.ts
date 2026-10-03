@@ -41,4 +41,32 @@ describe("complaint domain input", () => {
       }).success,
     ).toBe(false);
   });
+
+  it("treats blank optional complaint details as absent without weakening validation", () => {
+    const optionalFields = [
+      ["callerPhone", 32],
+      ["customerAccount", 100],
+      ["meterNumber", 100],
+      ["providerCallId", 200],
+    ] as const;
+
+    for (const [field, maxLength] of optionalFields) {
+      expect(createComplaintSchema.parse(valid)[field]).toBeUndefined();
+      expect(
+        createComplaintSchema.parse({ ...valid, [field]: "  \t " })[field],
+      ).toBeUndefined();
+      expect(
+        createComplaintSchema.parse({ ...valid, [field]: "  AB-123  " })[field],
+      ).toBe("AB-123");
+      expect(
+        createComplaintSchema.safeParse({
+          ...valid,
+          [field]: "x".repeat(maxLength + 1),
+        }).success,
+      ).toBe(false);
+      expect(
+        createComplaintSchema.safeParse({ ...valid, [field]: 42 }).success,
+      ).toBe(false);
+    }
+  });
 });
