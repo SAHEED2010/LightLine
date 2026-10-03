@@ -30,7 +30,20 @@ function required(name: string, schema: z.ZodType<string>): string {
   return result.data;
 }
 export const getDatabaseUrl = () => required("DATABASE_URL", databaseSchema);
-export const getToolSecret = () =>
-  required("LIGHTLINE_TOOL_API_KEY", secretSchema);
-export const getOperatorSecret = () =>
-  required("OPERATOR_ACCESS_SECRET", secretSchema);
+
+function distinctSecrets() {
+  const tool = required("LIGHTLINE_TOOL_API_KEY", secretSchema);
+  const operator = required("OPERATOR_ACCESS_SECRET", secretSchema);
+  if (tool === operator) {
+    console.error("Tool and operator secrets must differ");
+    throw new AppError(
+      503,
+      "CONFIGURATION_REQUIRED",
+      "This service is not configured. Contact the LightLine operator.",
+    );
+  }
+  return { tool, operator };
+}
+
+export const getToolSecret = () => distinctSecrets().tool;
+export const getOperatorSecret = () => distinctSecrets().operator;

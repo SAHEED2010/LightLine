@@ -104,4 +104,29 @@ describe("operator session boundary", () => {
     expect(response.status).toBe(401);
     expect(response.headers.get("set-cookie")).toBeNull();
   });
+  it("refuses operator login when tool and operator secrets are identical", async () => {
+    vi.stubEnv("LIGHTLINE_TOOL_API_KEY", operator);
+    const response = await POST(
+      new Request("http://localhost/api/operator/session", {
+        method: "POST",
+        headers: {
+          origin: "http://localhost",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ secret: operator }),
+      }),
+    );
+    expect(response.status).toBe(503);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+  it("refuses tool authentication when tool and operator secrets are identical", () => {
+    vi.stubEnv("OPERATOR_ACCESS_SECRET", tool);
+    expect(() =>
+      requireTool(
+        new Request("http://localhost/api/complaints", {
+          headers: { authorization: `Bearer ${tool}` },
+        }),
+      ),
+    ).toThrowError(expect.objectContaining({ status: 503 }));
+  });
 });
