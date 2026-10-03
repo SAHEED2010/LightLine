@@ -46,7 +46,7 @@ See [Architecture](docs/ARCHITECTURE.md) for exact schemas, bounds, error behavi
 
 ## Voice provider status
 
-BimpeAI is the intended voice/workflow layer. The authenticated account has a development agent and workflow, and a YarnGPT voice is selected. The Custom API tool and phone channel are not configured; in particular, the documented BimpeAI materials and inspected form do not establish how to supply the API’s required per-call idempotency header. Temlio compatibility is unconfirmed. KrosAI and Spitch are not used for v0.1. These statuses do not mean a live phone integration is ready.
+BimpeAI is the intended voice/workflow layer. The authenticated account has a development agent and workflow, and a YarnGPT voice is selected. The Custom API tool and phone channel are not configured. BimpeAI's tool schema supports dynamic HTTP header templates, but the exact agent input mapping and retry behavior for the API's required per-call idempotency header still need a live test. Temlio compatibility is unconfirmed. KrosAI and Spitch are not used for v0.1. These statuses do not mean a live phone integration is ready.
 
 See [BimpeAI setup and limits](docs/BIMPEAI_SETUP.md) and [provider findings with first-party references](docs/PROVIDERS.md) before configuring or describing external voice service behavior.
 

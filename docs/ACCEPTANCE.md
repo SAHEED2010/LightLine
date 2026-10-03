@@ -39,7 +39,7 @@ Try a missing required field, unsupported category, extra property, missing/malf
 
 Provider dashboard setup is a separate external gate. Read [BIMPEAI_SETUP.md](BIMPEAI_SETUP.md) and [PROVIDERS.md](PROVIDERS.md) first. The current account has a Development agent/workflow and a selected YarnGPT voice, but the Custom API action, request-specific idempotency header, and phone channel remain unconfigured or unresolved. Do not treat a mock/API test as a phone-call acceptance test.
 
-After BimpeAI confirms a supported way to set a fresh stable `Idempotency-Key` for each logical complaint and reuse it on retries, configure the bearer credential in the provider’s secure integration settings and the server secret store. Then test with a test agent/channel and a disposable payload:
+Configure a dynamic `Idempotency-Key` header using BimpeAI's documented `headers_template` support, and verify that a fresh stable value is used for each logical complaint and reused on retries. Configure the bearer credential in the provider’s secure integration settings and the server secret store. Then test with a test agent/channel and a disposable payload:
 
 1. Speak: “My prepaid meter has stopped accepting tokens since yesterday. My meter number is 45001234 and I’m in Yaba.”
 2. Confirm the agent collects only missing useful details, confirms the supplied identifier, and maps the report to a supported category.
@@ -51,6 +51,6 @@ After BimpeAI confirms a supported way to set a fresh stable `Idempotency-Key` f
 ## Current limits to record
 
 - No live deployment or owner acceptance call should be claimed unless separately completed and recorded.
-- BimpeAI’s current public docs and inspected form do not establish dynamic request-header/idempotency support; see the provider setup guide.
+- BimpeAI's tool schema documents dynamic HTTP header templates, but agent input mapping and retry stability have not been verified in a live tool call; see the provider setup guide.
 - Temlio’s relationship to the inspected BimpeAI telephony account is unconfirmed. YarnGPT was available and selected within BimpeAI; no direct YarnGPT API is used. KrosAI and Spitch are not used for v0.1.
 - Do not interpret absence of seeded records as a service error. Demo records, if added later, must be clearly identified and never automatically seeded in production.
