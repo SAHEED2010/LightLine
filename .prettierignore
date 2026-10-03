@@ -1,0 +1,9 @@
+node_modules
+.next
+package-lock.json
+drizzle/meta
+test-results
+playwright-report
+artifacts
+.env*
+AGENTS.md

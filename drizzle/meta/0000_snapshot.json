@@ -1,0 +1,271 @@
+{
+  "id": "ad3e28ab-540f-40a2-b6af-dca749d7a026",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.complaints": {
+      "name": "complaints",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "ticket_number": {
+          "name": "ticket_number",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "complaints_ticket_number_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "ticket_id": {
+          "name": "ticket_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "generated": {
+            "as": "'LL-' || lpad(ticket_number::text, greatest(4, length(ticket_number::text)), '0')",
+            "type": "stored"
+          }
+        },
+        "idempotency_key": {
+          "name": "idempotency_key",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "request_hash": {
+          "name": "request_hash",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "caller_phone": {
+          "name": "caller_phone",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "customer_account": {
+          "name": "customer_account",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "meter_number": {
+          "name": "meter_number",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "category": {
+          "name": "category",
+          "type": "complaint_category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "priority": {
+          "name": "priority",
+          "type": "complaint_priority",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'NORMAL'"
+        },
+        "status": {
+          "name": "status",
+          "type": "complaint_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'OPEN'"
+        },
+        "source": {
+          "name": "source",
+          "type": "complaint_source",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'VOICE'"
+        },
+        "provider_call_id": {
+          "name": "provider_call_id",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "complaints_created_at_idx": {
+          "name": "complaints_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "complaints_status_idx": {
+          "name": "complaints_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "complaints_ticket_number_unique": {
+          "name": "complaints_ticket_number_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "ticket_number"
+          ]
+        },
+        "complaints_ticket_id_unique": {
+          "name": "complaints_ticket_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "ticket_id"
+          ]
+        },
+        "complaints_idempotency_key_unique": {
+          "name": "complaints_idempotency_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "idempotency_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "complaints_description_length": {
+          "name": "complaints_description_length",
+          "value": "char_length(btrim(\"complaints\".\"description\")) between 1 and 4000"
+        },
+        "complaints_location_length": {
+          "name": "complaints_location_length",
+          "value": "char_length(btrim(\"complaints\".\"location\")) between 1 and 500"
+        },
+        "complaints_request_hash_format": {
+          "name": "complaints_request_hash_format",
+          "value": "\"complaints\".\"request_hash\" ~ '^[a-f0-9]{64}$'"
+        },
+        "complaints_idempotency_key_format": {
+          "name": "complaints_idempotency_key_format",
+          "value": "\"complaints\".\"idempotency_key\" ~ '^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$'"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.complaint_category": {
+      "name": "complaint_category",
+      "schema": "public",
+      "values": [
+        "METER",
+        "BILLING",
+        "SERVICE_INTERRUPTION",
+        "DISCONNECTION",
+        "VOLTAGE",
+        "DELAY",
+        "OTHER"
+      ]
+    },
+    "public.complaint_priority": {
+      "name": "complaint_priority",
+      "schema": "public",
+      "values": [
+        "NORMAL",
+        "HIGH",
+        "LOW"
+      ]
+    },
+    "public.complaint_source": {
+      "name": "complaint_source",
+      "schema": "public",
+      "values": [
+        "VOICE",
+        "OPERATOR",
+        "DEMO"
+      ]
+    },
+    "public.complaint_status": {
+      "name": "complaint_status",
+      "schema": "public",
+      "values": [
+        "OPEN",
+        "REVIEWING",
+        "RESOLVED",
+        "ESCALATED"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

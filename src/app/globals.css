@@ -1,0 +1,66 @@
+@import "tailwindcss";
+@import "@fontsource-variable/public-sans";
+@import "@fontsource-variable/manrope";
+
+:root {
+  color-scheme: light;
+  --font-body: "Public Sans Variable", sans-serif;
+  --font-display: "Manrope Variable", sans-serif;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  background: #f3f6fa;
+  color: #172b45;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+a {
+  color: inherit;
+}
+:focus-visible {
+  outline: 3px solid #1269d3;
+  outline-offset: 4px;
+}
+::selection {
+  background: #c6e0ff;
+  color: #102f57;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
