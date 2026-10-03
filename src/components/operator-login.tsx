@@ -86,8 +86,8 @@ export function LoginForm({ expired }: { expired: boolean }) {
             </button>
           </form>
           <div className={styles.loginPrivacy}>
-            <ShieldCheck size={14} /> Your credential stays private and is never
-            stored in this browser.
+            <ShieldCheck size={14} /> Your credential is sent to LightLine only
+            to start a secure operator session.
           </div>
         </section>
         <p className={styles.loginFooter}>LightLine · Complaint operations</p>
