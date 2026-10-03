@@ -52,5 +52,5 @@ Configure a dynamic `Idempotency-Key` header using BimpeAI's documented `headers
 
 - A protected Vercel preview deployment has been built and its API-to-development-database path verified with a fictional complaint. No inbound phone call or owner acceptance test has been completed; see [Deployment status](DEPLOYMENT.md).
 - BimpeAI's tool schema documents dynamic HTTP header templates, but agent input mapping and retry stability have not been verified in a live tool call; see the provider setup guide.
-- Temlio’s relationship to the inspected BimpeAI telephony account is unconfirmed. YarnGPT was available and selected within BimpeAI; no direct YarnGPT API is used. KrosAI and Spitch are not used for v0.1.
+- Hackathon materials specify Temlio phone-number credits through a BimpeAI SIP trunk, but Yusuf's account has no assigned number or SIP credentials visible. YarnGPT was available and selected within BimpeAI; no direct YarnGPT API is used. KrosAI and Spitch are not used for v0.1.
 - Do not interpret absence of seeded records as a service error. Demo records, if added later, must be clearly identified and never automatically seeded in production.

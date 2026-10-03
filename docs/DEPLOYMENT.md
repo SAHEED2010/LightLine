@@ -18,7 +18,7 @@ The Vercel import first attempted to build `main`, which currently contains repo
 ## Remaining gates
 
 1. Finish BimpeAI Custom API configuration and test a request-specific `Idempotency-Key` with safe retry behavior. The protected preview needs a supported way for BimpeAI to reach it.
-2. Confirm the inbound telephony/Temlio route, assign a suitable test number or channel, and complete a real voice-to-ticket test.
+2. Obtain the hackathon Temlio SIP-trunk allocation through BimpeAI, link its number to the LightLine agent, and complete a real voice-to-ticket test. The public event materials promise this route, but the Yusuf account currently shows no number or SIP credentials. Its ordinary Nigerian local number purchase option is quoted at ₦4,000 per month with free setup. The owner directed us not to purchase any paid resource without prior approval; no purchase was made.
 3. Resolve the earlier workflow assignment to `Yusuf Saheed's Agent` through a supported BimpeAI action or provider guidance.
-4. Complete the independent full-diff QA review, then owner manual acceptance testing.
+4. Address any actionable findings from the independent full-diff QA review, then complete owner manual acceptance testing. The standards pass found no AGENTS.md violation and one nonblocking repeated operator-fetch error path; the spec pass identified the live integration gates above and corrected documentation drift.
 5. Configure a production database and production secrets, then deploy the reviewed app when release gates permit.

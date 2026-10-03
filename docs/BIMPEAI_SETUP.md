@@ -8,11 +8,12 @@ This guide records verified BimpeAI account configuration for LightLine v0.1 and
 - **Existing agent side effect:** `Yusuf Saheed's Agent` was selected when the workflow was initially saved. BimpeAI states that two agents use this shared workflow and edits affect all of them. The existing agent is therefore also assigned the LightLine workflow. Workflow ID: `cmus5pyvr02sipy87kqncsgbu`. Its dashboard has no visible workflow unassign action; current BimpeAI documentation describes `workflow_id` on agent update but does not document `null`/detachment semantics. Do not delete the shared workflow or send an undocumented null update. The owner has been told this needs manual correction or provider confirmation.
 - **Bimpe integrations:** the Custom API integrations list was empty. Its Add Integration form exposes name, description, base URL, auth type/token, and optional test endpoint. No integration or action/tool was configured. The separate first-party Custom API tool schema documents declared body parameters, a body template, and an HTTP `headers_template` with `{{parameter}}` placeholders.
 - **Bimpe API keys:** none existed at inspection. The Generate API key modal has only an optional name field and no scope selector, so no account-wide key was created for read-only investigation.
-- **Bimpe channels:** no phone numbers are assigned to the LightLine agent. No channel is connected or deployed. The agent remains in Development.
-- **LightLine deployment URL:** not available yet. After deployment, use the HTTPS origin assigned to the LightLine app. The endpoint will be `https://<deployment-host>/api/complaints`; replace the placeholder with the real deployment host.
+- **Bimpe channels:** no phone numbers are assigned to the LightLine agent or available elsewhere on the team. No channel is connected or deployed. The agent remains in Development. The Telephony setup is an add-on that offers Nigerian local numbers with free setup and a quoted recurring price of ₦4,000 per month. No number was purchased; the owner specifically asked to use the hackathon Temlio route and not to create paid resources without approval.
+- **Hackathon entitlement:** the public builder resource hub says Temlio numbers are available through BimpeAI. BimpeAI's event announcement specifies phone-number credits through a SIP trunk. The Yusuf account's `LAGOSHACKNIGHT` offer code was already redeemed on 2 October for a 30-day Starter trial and ₦5,000 wallet credit. This does not itself assign a Temlio number or SIP credentials. The account shows no number.
+- **LightLine deployment URL:** a protected Vercel Preview is ready at `https://lightline-dlftcjcto-yusuf-saheeds-projects.vercel.app`. Its complaint endpoint is `/api/complaints`. Vercel Authentication currently blocks BimpeAI server requests to that preview; do not enter it as a working BimpeAI base URL until a supported access route is configured.
 - **Custom API feature:** confirmed in current BimpeAI documentation. A custom HTTP API integration can be configured for an agent, then one or more HTTP tools can be registered under it. The full tool schema documents body parameters, a body template, and an HTTP header template with dynamic placeholders. The exact agent input mapping and retry behavior still need a live tool test.
 - **Phone/channel setup:** BimpeAI documentation says channel connections are managed on the Console Deploy screen. Its API can list channels but cannot create or remove a channel connection.
-- **Temlio phone path:** not confirmed. The BimpeAI dashboard offers generic SIP provider choices but no Temlio-specific option. See [PROVIDERS.md](PROVIDERS.md).
+- **Temlio phone path:** the event materials establish Temlio through BimpeAI's SIP trunk, but the account has no provisioned Temlio number or SIP credentials. BimpeAI offers `Any SIP` import for a number already owned, requiring E.164 number, SIP host/port, username, and password, plus provider-side inbound forwarding to BimpeAI. There is no Temlio-specific dashboard option. See [PROVIDERS.md](PROVIDERS.md).
 
 ## LightLine complaint tool contract
 
@@ -97,7 +98,7 @@ Use these instructions in the LightLine BimpeAI agent/workflow:
 
 According to BimpeAI's current deployment guide, an operator connects channels from **Deploy**. For inbound telephony, the documented flow is to set up the Telephony card, provision or link a phone number under **Team settings → Phone numbers**, choose the voice profile and greeting under **Settings → Voice**, and test by dialing the number. The console also documents **Playground → Voice** for a pre-deployment voice check. These are documented platform steps; LightLine has not verified that the current account has telephony enabled, a number, a selected phone provider, or an inbound route.
 
-The hackathon's expected Temlio-backed phone route must be checked in the actual account. If BimpeAI's Telephony channel already uses or offers the Temlio path, keep LightLine integrated through BimpeAI. Do not add a direct Temlio SDK or webhook based on assumption.
+The hackathon resource hub and BimpeAI announcement identify a Temlio SIP-trunk route through BimpeAI. The account's **Bring your own SIP** tab supports generic SIP import, including `Any SIP`, and says imported numbers have no Bimpe monthly number fee (usage still applies). It requires a number and SIP REGISTER credentials; the provider must forward inbound calls to BimpeAI's SIP URI. No such number or credentials are visible in this account, and the ordinary BimpeAI purchase path quotes a recurring charge. Do not buy a number or add a direct Temlio integration while the hackathon allocation remains unresolved.
 
 ## Verification checklist
 
@@ -108,7 +109,7 @@ The hackathon's expected Temlio-backed phone route must be checked in the actual
 5. Verify a rejected request and an unavailable API never lead the agent to announce a ticket.
 6. Complete an inbound phone acceptance test with an owner/human tester before treating phone intake as live.
 
-The current dashboard is a real Yusuf Saheed account. No external API action, phone number purchase, real customer call, live deployment, or complaint-tool test was performed. BimpeAI's first-party docs describe test calls and channel testing, but no telephony channel is enabled for this agent.
+The current dashboard is a real Yusuf Saheed account. No BimpeAI Custom API action, phone number purchase, real customer call, or complaint-tool test was performed. A protected LightLine Vercel Preview and a fictional direct API test exist; these do not verify BimpeAI access or telephony. No telephony channel is enabled for this agent.
 
 ## Sources
 
@@ -117,3 +118,5 @@ The current dashboard is a real Yusuf Saheed account. No external API action, ph
 - [BimpeAI: Deploying and testing channels](https://docs.bimpe.ai/docs/use-cases/deploying-and-testing-channels/) — dashboard channel setup, telephony number and voice profile steps, test flow.
 - [BimpeAI: The Console dashboard](https://docs.bimpe.ai/docs/getting-started/dashboard/) — console sections and API key location.
 - [BimpeAI: Python SDK resources](https://docs.bimpe.ai/docs/sdk/python/resources/) — documents `workflow_id` as an agent update field and the workflow-create/agent-bind pattern; does not document workflow detachment with a null workflow ID.
+- [Lagos Agentic AI Hack Night builder resource hub](https://app.notion.com/p/samadekunle/04-Tools-Credits-Partner-Stack-3ec6a555a57681faa0cbee1703a448c1) — states that Temlio numbers are available through BimpeAI.
+- [BimpeAI event announcement](https://uk.linkedin.com/company/bimpeai) — states that Temlio phone-number credits are provided through a SIP trunk inside BimpeAI.
