@@ -6,7 +6,7 @@ LightLine is a voice-first electricity complaint intake system for Nigeria. Its 
 
 This repository currently contains governance and contributor guidance. The application has not been scaffolded yet, so there are no setup commands, environment variables, or CI checks to run.
 
-The intended MVP uses Next.js App Router, TypeScript, Tailwind CSS, Next.js Route Handlers with Zod validation, Supabase/PostgreSQL, and Vercel. BimpeAI is the primary voice workflow platform, using Temlio phone infrastructure and YarnGPT voice through BimpeAI. See [AGENTS.md](AGENTS.md) for the product boundaries and engineering workflow.
+The intended MVP uses Next.js App Router, TypeScript, Tailwind CSS, Next.js Route Handlers with Zod validation, Neon/PostgreSQL, and Vercel. BimpeAI is the primary voice workflow platform, using Temlio phone infrastructure and YarnGPT voice through BimpeAI. See [AGENTS.md](AGENTS.md) for the product boundaries and engineering workflow.
 
 ## Contributing
 
