@@ -37,9 +37,9 @@ Try a missing required field, unsupported category, extra property, missing/malf
 
 ## Voice-provider acceptance
 
-Provider dashboard setup is a separate external gate. Read [BIMPEAI_SETUP.md](BIMPEAI_SETUP.md) and [PROVIDERS.md](PROVIDERS.md) first. The current account has a Development agent/workflow and a selected YarnGPT voice, but the Custom API action, request-specific idempotency header, and phone channel remain unconfigured or unresolved. Do not treat a mock/API test as a phone-call acceptance test.
+Provider dashboard setup is a separate external gate. Read [BIMPEAI_SETUP.md](BIMPEAI_SETUP.md) and [PROVIDERS.md](PROVIDERS.md) first. The current account has a Development agent/workflow, a selected YarnGPT voice, and a saved Custom API action. Static and agent-driven Playground tests persisted fictional tickets; dynamic argument substitution and confirmed optional fields were verified. Provider retry behavior, real voice response, and the phone channel remain unverified or unavailable. Playground testing does not satisfy phone-call acceptance.
 
-Configure a dynamic `Idempotency-Key` header using BimpeAI's documented `headers_template` support, and verify that a fresh stable value is used for each logical complaint and reused on retries. Configure the bearer credential in the provider’s secure integration settings and the server secret store. Then test with a test agent/channel and a disposable payload:
+The dynamic `Idempotency-Key` header and bearer credential are configured in BimpeAI and Vercel Preview. Distinct keys were observed for separate complaints; stable reuse by the provider on an automatic retry remains to be verified. For phone acceptance, use a test channel and disposable payload:
 
 1. Speak: “My prepaid meter has stopped accepting tokens since yesterday. My meter number is 45001234 and I’m in Yaba.”
 2. Confirm the agent collects only missing useful details, confirms the supplied identifier, and maps the report to a supported category.
@@ -50,7 +50,7 @@ Configure a dynamic `Idempotency-Key` header using BimpeAI's documented `headers
 
 ## Current limits to record
 
-- A protected Vercel preview deployment has been built and its API-to-development-database path verified with a fictional complaint. No inbound phone call or owner acceptance test has been completed; see [Deployment status](DEPLOYMENT.md).
-- BimpeAI's tool schema documents dynamic HTTP header templates, but agent input mapping and retry stability have not been verified in a live tool call; see the provider setup guide.
-- Hackathon materials specify Temlio phone-number credits through a BimpeAI SIP trunk, but Yusuf's account has no assigned number or SIP credentials visible. YarnGPT was available and selected within BimpeAI; no direct YarnGPT API is used. KrosAI and Spitch are not used for v0.1.
+- A protected Vercel Preview deployment has been built. A temporary static BimpeAI action test created Neon development ticket `LL-0017`; a same-key replay returned HTTP 200 and left exactly one row. The saved action's dynamic templates were restored afterward. No inbound phone call or owner acceptance test has been completed; see [Deployment status](DEPLOYMENT.md).
+- BimpeAI's agent-driven tool calls persisted tickets with supplied and absent optional fields. Provider retry stability has not been verified; see the provider setup guide.
+- Hackathon materials specify Temlio phone-number credits through a BimpeAI SIP trunk. A request for the route was submitted to the event host, but Yusuf's account has no assigned number or SIP credentials visible. YarnGPT was available and selected within BimpeAI; no direct YarnGPT API is used. KrosAI and Spitch are not used for v0.1.
 - Do not interpret absence of seeded records as a service error. Demo records, if added later, must be clearly identified and never automatically seeded in production.

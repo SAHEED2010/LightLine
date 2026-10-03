@@ -6,32 +6,32 @@ This guide records verified BimpeAI account configuration for LightLine v0.1 and
 
 - **BimpeAI account:** inspected while authenticated as Yusuf Saheed. A dedicated `LightLine Complaint Intake` workflow and `LightLine Complaint Intake Agent` were created in Development. The workflow prompt is saved and the LightLine agent has `Mary YarnGPT [Female] English (NG)` selected in Settings → Voice. No voice ID is exposed in the dashboard UI.
 - **Existing agent side effect:** `Yusuf Saheed's Agent` was selected when the workflow was initially saved. BimpeAI states that two agents use this shared workflow and edits affect all of them. The existing agent is therefore also assigned the LightLine workflow. Workflow ID: `cmus5pyvr02sipy87kqncsgbu`. Its dashboard has no visible workflow unassign action; current BimpeAI documentation describes `workflow_id` on agent update but does not document `null`/detachment semantics. Do not delete the shared workflow or send an undocumented null update. The owner has been told this needs manual correction or provider confirmation.
-- **Bimpe integration:** `LightLine Preview` is saved as a Custom API integration with bearer authentication. Its enabled `Create LightLine complaint` action uses `POST /api/complaints`. The action requires `category`, `description`, `location`, and `idempotencyKey`; its JSON body template sends the first three, while its headers send a dynamic `Idempotency-Key` and a static Vercel protection bypass value. The action has not yet created a confirmed ticket.
+- **Bimpe integration:** `LightLine Preview` is saved as a Custom API integration with bearer authentication. Its enabled `Create LightLine complaint` action uses `POST /api/complaints`. The action requires `category`, `description`, `location`, and `idempotencyKey`; its body template also maps optional `meterNumber`, `customerAccount`, and `callerPhone`. Its headers send a dynamic `Idempotency-Key` and a static Vercel protection bypass value. A static fictional test created `LL-0017` in Neon. Agent-driven Playground calls later created `LL-0019` through `LL-0024`.
 - **Bimpe API keys:** none existed at inspection. The Generate API key modal has only an optional name field and no scope selector, so no account-wide key was created for read-only investigation.
 - **Bimpe channels:** no phone numbers are assigned to the LightLine agent or available elsewhere on the team. No channel is connected or deployed. The agent remains in Development. The Telephony setup is an add-on that offers Nigerian local numbers with free setup and a quoted recurring price of ₦4,000 per month. No number was purchased; the owner specifically asked to use the hackathon Temlio route and not to create paid resources without approval.
-- **Hackathon entitlement:** the public builder resource hub says Temlio numbers are available through BimpeAI. BimpeAI's event announcement specifies phone-number credits through a SIP trunk. The Yusuf account's `LAGOSHACKNIGHT` offer code was already redeemed on 2 October for a 30-day Starter trial and ₦5,000 wallet credit. This does not itself assign a Temlio number or SIP credentials. The account shows no number.
-- **LightLine deployment URL:** the saved integration uses the stable branch Preview URL `https://lightline-git-feat-lightline-v01-yusuf-saheeds-projects.vercel.app`; its complaint endpoint is `/api/complaints`. Vercel Authentication protects this URL. The BimpeAI Test button sent a `POST`, and Vercel logs confirmed `Bimpe-AI-Agent/1.0` reached the Next.js function via the protection bypass. The handler returned HTTP `401`; an incorrect staged bearer token was identified and replaced with a fresh dedicated tool key, saved write-only in BimpeAI and Vercel Preview. Vercel requires redeployment for the changed environment value; no retest has occurred and no complaint was persisted through BimpeAI.
-- **Custom API feature:** the saved action confirms that BimpeAI accepts a dynamic `{{idempotencyKey}}` header placeholder and a static bypass header in its configuration. Runtime substitution, generation of a stable key per logical complaint, provider retry behavior, and agent invocation still need successful live tests.
+- **Hackathon entitlement:** the public builder resource hub says Temlio numbers are available through BimpeAI. BimpeAI's event announcement specifies phone-number credits through a SIP trunk. The Yusuf account's `LAGOSHACKNIGHT` offer code was already redeemed on 2 October for a 30-day Starter trial and ₦5,000 wallet credit. This does not itself assign a Temlio number or SIP credentials. A request for the hackathon Temlio/BimpeAI route was submitted to the event host through Luma. No allocation has appeared in the account.
+- **LightLine deployment URL:** the saved integration uses the stable branch Preview URL `https://lightline-git-feat-lightline-v01-yusuf-saheeds-projects.vercel.app`; its complaint endpoint is `/api/complaints`. Vercel Authentication protects this URL. The BimpeAI Test button sent a `POST`, and Vercel logs confirmed `Bimpe-AI-Agent/1.0` reached the Next.js function via the protection bypass. An initial test returned HTTP `401`; an incorrect staged bearer token was identified and replaced with a fresh dedicated tool key, saved write-only in BimpeAI and Vercel Preview. After redeployment, a temporary static fictional request returned HTTP `201` and persisted `LL-0017` in Neon. Repeating it with the same key returned HTTP `200`; a Neon query found exactly one row for that key.
+- **Custom API feature:** Playground calls confirmed substitution of required fields, supplied meter/account/phone values, and `idempotencyKey`. BimpeAI may send empty strings or unresolved `{{field}}` markers for omitted optional fields. The API now normalizes those exact absent-field representations. The revised workflow prompt produced distinct 32-character hexadecimal keys in two live tests; automatic provider retry stability remains unverified.
 - **Phone/channel setup:** BimpeAI documentation says channel connections are managed on the Console Deploy screen. Its API can list channels but cannot create or remove a channel connection.
 - **Temlio phone path:** the event materials establish Temlio through BimpeAI's SIP trunk, but the account has no provisioned Temlio number or SIP credentials. BimpeAI offers `Any SIP` import for a number already owned, requiring E.164 number, SIP host/port, username, and password, plus provider-side inbound forwarding to BimpeAI. There is no Temlio-specific dashboard option. See [PROVIDERS.md](PROVIDERS.md).
 
 ## LightLine complaint tool contract
 
-The saved complaint action is configured as follows. Successful authorization and ticket creation remain unverified:
+The saved complaint action is configured as follows. Static and agent-driven Playground tests reached the API and persisted tickets:
 
-| Setting                 | Value                                                                  |
-| ----------------------- | ---------------------------------------------------------------------- |
-| Integration name        | `LightLine Preview`                                                    |
-| Base URL                | Stable branch Preview URL above                                        |
-| Tool name               | `Create LightLine complaint`                                           |
-| Method                  | `POST`                                                                 |
-| Path                    | `/api/complaints`                                                      |
-| Authentication          | Bearer token containing the server-side `LIGHTLINE_TOOL_API_KEY` value |
-| Required request header | Dynamic `Idempotency-Key` from the required `idempotencyKey` input     |
-| Protection header       | Static `x-vercel-protection-bypass` in the saved action                |
-| Request body            | `category`, `description`, and `location` only at present              |
+| Setting                 | Value                                                                                               |
+| ----------------------- | --------------------------------------------------------------------------------------------------- |
+| Integration name        | `LightLine Preview`                                                                                 |
+| Base URL                | Stable branch Preview URL above                                                                     |
+| Tool name               | `Create LightLine complaint`                                                                        |
+| Method                  | `POST`                                                                                              |
+| Path                    | `/api/complaints`                                                                                   |
+| Authentication          | Bearer token containing the server-side `LIGHTLINE_TOOL_API_KEY` value                              |
+| Required request header | Dynamic `Idempotency-Key` from the required `idempotencyKey` input                                  |
+| Protection header       | Static `x-vercel-protection-bypass` in the saved action                                             |
+| Request body            | `category`, `description`, `location`, and optional `meterNumber`, `customerAccount`, `callerPhone` |
 
-The BimpeAI documentation demonstrates bearer authentication on a custom API integration (`auth_type: "bearer"` and `auth_config.token`). A dedicated Preview tool key is saved in the BimpeAI bearer configuration and Vercel Preview environment settings. Never put its value in a tool argument, prompt, repository, or client-side variable. The new Vercel environment value requires redeployment before the authentication test can be repeated.
+The BimpeAI documentation demonstrates bearer authentication on a custom API integration (`auth_type: "bearer"` and `auth_config.token`). A dedicated Preview tool key is saved in the BimpeAI bearer configuration and Vercel Preview environment settings. Never put its value in a tool argument, prompt, repository, or client-side variable. The Preview was redeployed with this key before the successful static test.
 
 The bearer secret must differ from `OPERATOR_ACCESS_SECRET`; LightLine rejects identical tool and operator secrets. Vercel's separate Preview protection bypass uses `x-vercel-protection-bypass` on every protected request. The saved action has this header and its first test reached the function. The bypass is distinct from the LightLine bearer token.
 
@@ -45,7 +45,9 @@ The bearer secret must differ from `OPERATOR_ACCESS_SECRET`; LightLine rejects i
 }
 ```
 
-The saved action sends the three required body fields: `category`, `description`, and `location`. The API also supports optional `callerPhone`, `customerAccount`, `meterNumber`, `providerCallId`, `source`, and `priority`, but they are not mapped in this action yet. `source` defaults to `VOICE`; `priority` defaults to `NORMAL`. The API assigns status `OPEN`; do not send a status. The category must be one of `METER`, `BILLING`, `SERVICE_INTERRUPTION`, `DISCONNECTION`, `VOLTAGE`, `DELAY`, or `OTHER`.
+The saved action sends the three required body fields and maps optional `meterNumber`, `customerAccount`, and `callerPhone`. The API also supports `providerCallId`, `source`, and `priority`, but those are not mapped in this action. `source` defaults to `VOICE`; `priority` defaults to `NORMAL`. The API assigns status `OPEN`; do not send a status. The category must be one of `METER`, `BILLING`, `SERVICE_INTERRUPTION`, `DISCONNECTION`, `VOLTAGE`, `DELAY`, or `OTHER`.
+
+When an optional value is absent, BimpeAI may send an empty string or leave its literal `{{field}}` marker in the body. The initial no-meter Playground call returned HTTP `400`; the agent correctly said it could not confirm a ticket. Commits `5e3043c` and `c0556fa` normalize blank values and exact unresolved optional-field markers to absence. A deployed Playground test then persisted `LL-0023` with all three optional fields `null`; the agent announced the returned reference.
 
 The `Idempotency-Key` header is required and must match `^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$` (8–128 characters total). Generate a stable value per logical complaint creation and reuse it for provider retries. Do not generate a new key when retrying the same complaint.
 
@@ -82,9 +84,24 @@ On any non-success response, timeout, or malformed response, do not say that a t
 
 ## Idempotency header capability: supported template, runtime behavior to verify
 
-The first-party API reference for **Custom API — add tool** documents `body_params`, `body_template`, and `headers_template`; both templates accept `{{parameter}}` placeholders. The saved action declares `idempotencyKey` as a required input and uses `{{idempotencyKey}}` in the header template. It does not document automatic key generation or whether platform-level retries reuse the exact same tool arguments. Runtime substitution, caller/model input mapping, and retry behavior still need a successful live test. Keep the idempotency header dynamic; test a retry with the same key before relying on replay safety.
+The first-party API reference for **Custom API — add tool** documents `body_params`, `body_template`, and `headers_template`; both templates accept `{{parameter}}` placeholders. The saved action declares `idempotencyKey` as a required input and uses `{{idempotencyKey}}` in the header template. The revised workflow prompt instructs the agent to choose a fresh 32-character hexadecimal key per complaint and reuse it exactly on retry. Playground tickets `LL-0023` and `LL-0024` used distinct keys in that format. The provider does not document automatic outbound key generation or whether platform-level retries reuse the same tool arguments. The static replay test proves LightLine's server-side same-key behavior through BimpeAI, but provider retry stability remains unverified.
 
-The dashboard integration form is integration-level; the action configuration is separate. The integration and action are saved, and the dedicated bearer key was submitted through the provider configuration. The first action test returned HTTP `401` before that key was replaced; the exact reason for that response is not independently confirmed. It cannot establish complaint persistence or ticket handling.
+The dashboard integration form is integration-level; the action configuration is separate. The integration and action are saved, and the dedicated bearer key was submitted through the provider configuration. The first action test returned HTTP `401` before that key was replaced; the exact reason for that response is not independently confirmed. After redeployment, a temporary static request and same-key replay returned HTTP `201` and `200` in Vercel function logs, with one confirmed Neon row (`LL-0017`). The dynamic templates were restored afterward. Playground calls demonstrated agent invocation and persistence for supplied and absent optional fields. The earlier no-meter HTTP `400` provided a safe failure-behavior observation; the validation issue was fixed and retested.
+
+## Playground test evidence
+
+These tests used fictional complaint details in the LightLine development database after the caller confirmed the details:
+
+| Ticket    | Category               | Observed result                                                                                                                                                     |
+| --------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LL-0019` | `METER`                | Agent-generated action persisted the required complaint fields correctly.                                                                                           |
+| `LL-0020` | `BILLING`              | Embedded quotation marks in the description persisted correctly.                                                                                                    |
+| `LL-0021` | `SERVICE_INTERRUPTION` | The confirmed meter number `45001234` was persisted in `meterNumber`.                                                                                               |
+| `LL-0022` | `VOLTAGE`              | A previously failed complaint persisted after blank optional-field normalization; account and phone placeholders were then found in this row before the marker fix. |
+| `LL-0023` | `DELAY`                | After the marker fix, meter, account, and phone all persisted as `null`; the agent announced the returned ticket.                                                   |
+| `LL-0024` | `BILLING`              | Confirmed `customerAccount` and `callerPhone` values persisted correctly.                                                                                           |
+
+These were Playground interactions, not inbound phone calls. The first no-meter request returned HTTP `400` and did not create a ticket; the agent reported that creation could not be confirmed. The deployed normalization fixes were then verified by `LL-0023` and `LL-0024`. Those two tickets used distinct 32-character hexadecimal keys. Provider-level retry behavior remains unverified.
 
 ## Agent behavior
 
@@ -100,14 +117,11 @@ The hackathon resource hub and BimpeAI announcement identify a Temlio SIP-trunk 
 
 ## Verification checklist
 
-1. Redeploy the stable Preview so Vercel applies the new tool key, then retest the saved BimpeAI action with a disposable complaint. Confirm authorization, Neon persistence, and the returned ticket reference.
-2. Verify the saved action and Vercel Preview use the same dedicated bearer secret and that the bypass header continues to reach the function.
-3. Verify runtime substitution of the required `idempotencyKey` input into the `Idempotency-Key` header. Confirm a fresh stable value is used per logical complaint and reused on retries.
-4. Use a test agent/channel and a disposable complaint to verify input validation, persistence, the returned ticket reference, and retry replay behavior.
-5. Verify a rejected request and an unavailable API never lead the agent to announce a ticket.
-6. Complete an inbound phone acceptance test with an owner/human tester before treating phone intake as live.
+1. Verify provider retries preserve the same `idempotencyKey`; the static action test verified LightLine's replay behavior, and two live complaints used distinct keys.
+2. Verify an unavailable API and other rejected requests never lead the agent to announce a ticket. The no-meter validation failure was handled safely, but other failure types remain untested.
+3. Obtain the hackathon Temlio allocation, connect an inbound phone channel, and complete an owner/human acceptance call before treating phone intake as live.
 
-The current dashboard is a real Yusuf Saheed account. The saved BimpeAI action reached the protected LightLine function on its first test, but its incorrect staged bearer token produced HTTP `401`. A new dedicated key is saved in both providers, pending Vercel redeployment and retest. No BimpeAI complaint was persisted and no ticket was returned. No phone number purchase or real customer call occurred. No Temlio number, SIP credentials, or telephony channel are available for this agent. The application tests (25), lint, typecheck, formatting, and build passed for `e54f390`, but they do not replace a live voice-to-ticket test.
+The current dashboard is a real Yusuf Saheed account. A static fictional BimpeAI test persisted `LL-0017` and verified same-key replay. Agent-driven Playground tests then persisted `LL-0019` through `LL-0024` with the observations above. No phone number purchase or real customer call occurred. The event host was contacted through Luma for the hackathon Temlio route, but no Temlio number, SIP credentials, or telephony channel are available for this agent. A live voice-to-ticket acceptance call remains outstanding.
 
 ## Sources
 
