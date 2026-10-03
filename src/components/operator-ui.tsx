@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Activity,
@@ -28,6 +28,19 @@ import {
 import styles from "./operator.module.css";
 
 type ApiError = { success: false; error: { code: string; message: string } };
+async function readApiResponse<T extends { success: true }>(
+  response: Response,
+  fallback: string,
+): Promise<T> {
+  const body = (await response.json().catch(() => null)) as T | ApiError | null;
+  if (!response.ok || !body?.success)
+    throw new Error(
+      body?.success === false && typeof body.error?.message === "string"
+        ? body.error.message
+        : fallback,
+    );
+  return body;
+}
 type ComplaintList = {
   success: true;
   complaints: Complaint[];
@@ -174,11 +187,9 @@ export function ComplaintRegister() {
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
   const [refreshKey, setRefreshKey] = useState(0);
-  const controllerRef = useRef<AbortController | null>(null);
   const router = useRouter();
   useEffect(() => {
     const controller = new AbortController();
-    controllerRef.current = controller;
     async function fetchComplaints() {
       try {
         const params = new URLSearchParams({
@@ -191,17 +202,16 @@ export function ComplaintRegister() {
           cache: "no-store",
           signal: controller.signal,
         });
-        const body = (await response.json()) as ComplaintList | ApiError;
         if (response.status === 401 || response.status === 403) {
           router.replace("/operator/login?expired=1");
           return;
         }
-        if (!response.ok || !body.success)
-          throw new Error(
-            !body.success ? body.error.message : "Could not load complaints.",
-          );
+        const body = await readApiResponse<ComplaintList>(
+          response,
+          "Could not load complaints. Please try again.",
+        );
         if (!controller.signal.aborted) {
-          setData(body as ComplaintList);
+          setData(body);
           setError("");
         }
       } catch (e) {
@@ -524,16 +534,14 @@ export function ComplaintDetail({ ticketId }: { ticketId: string }) {
           `/api/complaints/${encodeURIComponent(ticketId)}`,
           { cache: "no-store", signal: controller.signal },
         );
-        const body = (await r.json()) as
-          { success: true; complaint: Complaint } | ApiError;
         if (r.status === 401 || r.status === 403) {
           router.replace("/operator/login?expired=1");
           return;
         }
-        if (!r.ok || !body.success)
-          throw new Error(
-            !body.success ? body.error.message : "Could not load complaint.",
-          );
+        const body = await readApiResponse<{
+          success: true;
+          complaint: Complaint;
+        }>(r, "Could not load complaint. Please try again.");
         setComplaint(body.complaint);
         setNextStatus(body.complaint.status);
       } catch (e) {
@@ -559,16 +567,14 @@ export function ComplaintDetail({ ticketId }: { ticketId: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: nextStatus }),
       });
-      const body = (await r.json()) as
-        { success: true; complaint: Complaint } | ApiError;
       if (r.status === 401 || r.status === 403) {
         router.replace("/operator/login?expired=1");
         return;
       }
-      if (!r.ok || !body.success)
-        throw new Error(
-          !body.success ? body.error.message : "Could not save status.",
-        );
+      const body = await readApiResponse<{
+        success: true;
+        complaint: Complaint;
+      }>(r, "Could not save status. Please try again.");
       setComplaint(body.complaint);
       setNextStatus(body.complaint.status);
       setMessage("Status saved.");

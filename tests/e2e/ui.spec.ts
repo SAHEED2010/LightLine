@@ -152,8 +152,17 @@ test("dashboard loading, empty, and failure states give a next step", async ({
   page,
 }) => {
   let fail = false;
+  let malformed = false;
   await page.route("**/api/complaints?**", async (route) => {
     await new Promise((resolve) => setTimeout(resolve, 500));
+    if (malformed) {
+      await route.fulfill({
+        status: 502,
+        contentType: "text/html",
+        body: "<html><body>Gateway error</body></html>",
+      });
+      return;
+    }
     await route.fulfill({
       status: fail ? 503 : 200,
       json: fail
@@ -192,6 +201,12 @@ test("dashboard loading, empty, and failure states give a next step", async ({
   ).toBeVisible();
   await expect(page.getByRole("button", { name: /Try again/ })).toBeVisible();
   fail = false;
+  malformed = true;
+  await page.getByRole("button", { name: /Try again/ }).click();
+  await expect(
+    page.getByText("Could not load complaints. Please try again."),
+  ).toBeVisible();
+  malformed = false;
   await page.getByRole("button", { name: /Try again/ }).click();
   await expect(
     page.getByText("No complaints recorded yet", { exact: true }),
