@@ -4,7 +4,8 @@
 
 LightLine is a voice-first electricity complaint intake system for Nigeria. The core path is: caller speaks naturally -> voice agent collects and classifies the complaint -> approved complaint-creation tool calls the API -> server validates and stores it -> dashboard shows it -> caller receives a human-readable ticket reference. The outcome is an unstructured complaint becoming a structured ticket and visible operational action. For the hackathon, the application database may stand in for the utility's internal ticketing system.
 
-- Build the smallest end-to-end workflow in one Next.js App Router project: strict TypeScript, Tailwind CSS, shadcn/ui when useful, Route Handlers, Zod, Supabase/PostgreSQL, and Vercel. Use Supabase Realtime only where it improves dashboard updates.
+- Build the smallest end-to-end workflow in one Next.js App Router project: strict TypeScript, Tailwind CSS, shadcn/ui when useful, Route Handlers, Zod, Neon/PostgreSQL, and Vercel.
+- Treat Neon as the managed PostgreSQL database. Keep database access server-side and prefer a simple server data-fetching path first. If the dashboard needs near-live updates, start with deliberate refetching or short polling before adding more complex realtime infrastructure.
 - BimpeAI is the primary voice-agent/workflow platform, with Temlio phone infrastructure and YarnGPT voice through BimpeAI. Add KrosAI only for an actual outbound-calling need and Spitch only for a needed direct speech/language integration. Verify provider behavior from current documentation or a working integration before relying on it.
 - Keep the voice tool surface small. Introduce separate services, queues, event buses, state-management libraries, external services, or multi-agent orchestration only when a concrete requirement justifies them; explain significant architectural expansion first.
 - Keep the initial MVP focused on complaint intake and visibility. Defer payments, token purchasing, smart-meter and undocumented DisCo CRM integrations, large analytics, maps, customer mobile apps, complicated authentication, blockchain, and broad multilingual claims until explicitly requested and validated.
@@ -21,11 +22,11 @@ LightLine is a voice-first electricity complaint intake system for Nigeria. The 
 - The voice agent may understand and classify a complaint, collect missing required information, confirm important identifiers, create a complaint through an approved tool, retrieve status when that feature exists, and return approved process information.
 - Ground replies in confirmed data. Do not diagnose electrical faults, invent outages, customer records, ticket status, regulatory information, utility action, or unsupported resolution times. Speak a ticket number only after the backend confirms successful creation.
 - Make the workflow visible through recent complaints, ticket reference, category, location, status, creation time, and a complaint detail view. Complete the call-to-ticket path before expanding into a large admin portal.
-- If realtime is used, connect database inserts to Supabase Realtime dashboard updates, with a normal fetch path when events are delayed.
+- Keep dashboard refresh behavior simple and reliable. Prefer standard server fetching plus explicit refetching or short polling for near-live demo updates. Do not assume Supabase-style database realtime features when using Neon; add realtime infrastructure only when a concrete need justifies it.
 
 ## Security
 
-- Keep secrets and credential-containing `.env` files out of Git. Add only placeholders to `.env.example` when environment variables are introduced. Keep Supabase service-role, BimpeAI, telephony, and API credentials server-side.
+- Keep secrets and credential-containing `.env` files out of Git. Add only placeholders to `.env.example` when environment variables are introduced. Keep the Neon database connection string, BimpeAI, telephony, and API credentials server-side.
 - Never request a caller's PIN, password, or OTP for the LightLine MVP.
 
 ## Working in this repository
