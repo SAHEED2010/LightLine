@@ -35,6 +35,8 @@ npm run test:e2e
 
 CI runs lint, typecheck, unit/integration tests, build, and Playwright on Node 24. Check the current workflow status before treating those gates as passed.
 
+The current Vercel preview and remaining release gates are recorded in [Deployment status](docs/DEPLOYMENT.md).
+
 ## API and operations
 
 - `POST /api/complaints` accepts a tool-authenticated complaint and required `Idempotency-Key`; successful persistence returns a ticket reference.
