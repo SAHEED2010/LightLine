@@ -1,15 +1,15 @@
 # Deployment status
 
-LightLine's Vercel project is `yusuf-saheeds-projects/lightline`, connected to `SAHEED2010/LightLine` under Yusuf Saheed's account. The feature implementation is on `feat/lightline-v0.1` and [draft pull request #2](https://github.com/SAHEED2010/LightLine/pull/2). The pull request has two passing GitHub Actions checks as of 3 October 2026. It has not been merged.
+LightLine's Vercel project is `yusuf-saheeds-projects/lightline`, connected to `SAHEED2010/LightLine` under Yusuf Saheed's account. The feature implementation is on `feat/lightline-v0.1` and [draft pull request #2](https://github.com/SAHEED2010/LightLine/pull/2). The latest feature commit is `e54f390`; its two GitHub Actions quality checks and Vercel deployment checks passed on 4 October 2026. The pull request has not been merged.
 
 ## Preview
 
-- Deployment ID: `dpl_3eVSTEJyNcMVUX1Komc8RjcN578D`
-- URL: <https://lightline-dlftcjcto-yusuf-saheeds-projects.vercel.app>
+- Stable branch URL: <https://lightline-git-feat-lightline-v01-yusuf-saheeds-projects.vercel.app>
+- Latest verified deployment ID: `dpl_J7QrNjyA9sWnD2NU37ayDs8gmJZs`
 - State: ready; the Next.js build and TypeScript check passed on Vercel.
-- Protection: Vercel Authentication is enabled. A BimpeAI server-to-server request cannot use this preview URL until a supported authentication/bypass route is configured or an appropriately reviewed public deployment is made.
-- Secrets: `DATABASE_URL`, `LIGHTLINE_TOOL_API_KEY`, and `OPERATOR_ACCESS_SECRET` are stored as hidden Vercel **Preview** secrets. The database URL points to LightLine's dedicated Neon development branch. Their values are absent from Git.
-- Verification: the landing page rendered in an authenticated browser session. A Vercel CLI request through the deployment protection created the fictional `DEMO` complaint `LL-0016` and returned HTTP success only after Neon persistence. This record remains in the development database.
+- Protection: Vercel Authentication is enabled on the stable branch URL. The saved BimpeAI action sends a static `x-vercel-protection-bypass` header. Vercel function logs confirmed that its test request, identified as `Bimpe-AI-Agent/1.0`, passed deployment protection and reached the Next.js complaint handler.
+- Secrets: `DATABASE_URL`, `LIGHTLINE_TOOL_API_KEY`, and `OPERATOR_ACCESS_SECRET` are stored as hidden Vercel **Preview** secrets. The database URL points to LightLine's dedicated Neon development branch. A fresh dedicated tool key was saved write-only in both BimpeAI and Vercel Preview after the first BimpeAI test returned HTTP `401`; an incorrect staged bearer token was identified, though the exact reason for the response is not independently confirmed. Vercel requires a redeployment to apply the changed environment value; the new key has not been retested. Secret values are absent from Git.
+- Verification: the landing page rendered in an authenticated browser session. A Vercel CLI request through the deployment protection created the fictional `DEMO` complaint `LL-0016` and returned HTTP success only after Neon persistence. This record remains in the development database. The BimpeAI test reached the handler but returned `401`; no complaint was persisted through BimpeAI. Local tests (25), lint, typecheck, formatting, and build passed for `e54f390`. That commit also rejects an identical tool and operator secret; both secrets must remain distinct.
 
 ## Production
 
@@ -17,8 +17,12 @@ The Vercel import first attempted to build `main`, which currently contains repo
 
 ## Remaining gates
 
-1. Finish BimpeAI Custom API configuration and test a request-specific `Idempotency-Key` with safe retry behavior. The protected preview needs a supported way for BimpeAI to reach it.
+1. Redeploy the Preview so the new tool key takes effect, then retest the saved BimpeAI complaint action. Verify authorization, a request-specific `Idempotency-Key`, Neon persistence, the returned ticket reference, and safe retry behavior. The earlier test confirmed the bypass reaches the handler but ended at HTTP `401`.
 2. Obtain the hackathon Temlio SIP-trunk allocation through BimpeAI, link its number to the LightLine agent, and complete a real voice-to-ticket test. The public event materials promise this route, but the Yusuf account currently shows no number or SIP credentials. Its ordinary Nigerian local number purchase option is quoted at ₦4,000 per month with free setup. The owner directed us not to purchase any paid resource without prior approval; no purchase was made.
 3. Resolve the earlier workflow assignment to `Yusuf Saheed's Agent` through a supported BimpeAI action or provider guidance.
 4. Address any actionable findings from the independent full-diff QA review, then complete owner manual acceptance testing. The standards pass found no AGENTS.md violation and one nonblocking repeated operator-fetch error path; the spec pass identified the live integration gates above and corrected documentation drift.
 5. Configure a production database and production secrets, then deploy the reviewed app when release gates permit.
+
+## Reference
+
+- [Vercel protection bypass for automation](https://vercel.com/docs/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation) — documented header for server-to-server access to protected deployments.
