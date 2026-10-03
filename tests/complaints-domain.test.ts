@@ -69,4 +69,24 @@ describe("complaint domain input", () => {
       ).toBe(false);
     }
   });
+
+  it("ignores only the matching unresolved BimpeAI optional-field marker", () => {
+    for (const field of [
+      "callerPhone",
+      "customerAccount",
+      "meterNumber",
+      "providerCallId",
+    ] as const) {
+      expect(
+        createComplaintSchema.parse({ ...valid, [field]: `{{${field}}}` })[
+          field
+        ],
+      ).toBeUndefined();
+      expect(
+        createComplaintSchema.parse({ ...valid, [field]: "{{different}}" })[
+          field
+        ],
+      ).toBe("{{different}}");
+    }
+  });
 });
